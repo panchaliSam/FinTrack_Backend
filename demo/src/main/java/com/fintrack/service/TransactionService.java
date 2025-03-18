@@ -1,7 +1,9 @@
 package com.fintrack.service;
 
 import com.fintrack.entity.Transaction;
+import com.fintrack.entity.User;
 import com.fintrack.repository.TransactionRepository;
+import com.fintrack.repository.UserRepository;
 import com.fintrack.type.Category;
 import com.fintrack.type.Tag;
 import com.fintrack.type.RecurrenceFrequency;
@@ -16,15 +18,33 @@ import java.util.Optional;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository; // Inject UserRepository
+    private final BudgetComparisonService budgetComparisonService;
 
-    public TransactionService(TransactionRepository transactionRepository) {
+    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, BudgetComparisonService budgetComparisonService) {
         this.transactionRepository = transactionRepository;
+        this.userRepository = userRepository;
+        this.budgetComparisonService = budgetComparisonService;
     }
 
     public Transaction createTransaction(String userId, Tag tag, Category category, String description, double amount,
                                          LocalDateTime transactionDate, boolean isRecurring, RecurrenceFrequency recurrenceFrequency) {
+        // Fetch the user from the repository
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (!userOptional.isPresent()) {
+            // If the user does not exist, throw an exception or handle the error as needed
+            throw new IllegalArgumentException("User not found with ID: " + userId);
+        }
+
+        User user = userOptional.get(); // Get the user object
+
+        // Create the new transaction object
         Transaction transaction = new Transaction();
-        transaction.setUserId(userId);
+        transaction.setUserId(userId);  // Set userId
+        transaction.setUser(user); // Set the User object (Important!)
+
+        // Set other properties
         transaction.setTag(tag);
         transaction.setCategory(category);
         transaction.setDescription(description);
@@ -40,7 +60,13 @@ public class TransactionService {
             transaction.setNextRecurrenceDate(null);
         }
 
-        return transactionRepository.save(transaction);
+        // Save the transaction
+        transaction = transactionRepository.save(transaction);
+
+        // Now that the user is set, check if the budget is exceeded
+        budgetComparisonService.checkBudgetExceedance(transaction.getUser(), transaction.getTransactionDate().getYear());
+
+        return transaction;
     }
 
     public List<Transaction> getAllTransactions() {
@@ -89,5 +115,30 @@ public class TransactionService {
             return true;
         }
         return false;
+    }
+
+    public List<Transaction> getRecurringTransactions() {
+        return transactionRepository.findByIsRecurringTrue();
+    }
+
+    public void createRecurringTransaction(Transaction originalTransaction) {
+        LocalDateTime nextDate = RecurrenceUtil.calculateNextOccurrence(originalTransaction.getNextRecurrenceDate(),
+                originalTransaction.getRecurrenceFrequency());
+
+        Transaction newTransaction = new Transaction();
+        newTransaction.setUserId(originalTransaction.getUserId());
+        newTransaction.setTag(originalTransaction.getTag());
+        newTransaction.setCategory(originalTransaction.getCategory());
+        newTransaction.setDescription(originalTransaction.getDescription());
+        newTransaction.setAmount(originalTransaction.getAmount());
+        newTransaction.setTransactionDate(LocalDateTime.now());
+        newTransaction.setRecurring(true);
+        newTransaction.setRecurrenceFrequency(originalTransaction.getRecurrenceFrequency());
+        newTransaction.setNextRecurrenceDate(nextDate);
+
+        transactionRepository.save(newTransaction);
+
+        originalTransaction.setNextRecurrenceDate(nextDate);
+        transactionRepository.save(originalTransaction);
     }
 }

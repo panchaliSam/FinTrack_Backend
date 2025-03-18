@@ -22,7 +22,7 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<String> createTransaction(@RequestBody TransactionDto transactionDTO) {
         try {
-            transactionService.createTransaction(
+            Transaction createdTransaction = transactionService.createTransaction(
                     transactionDTO.getUserId(),
                     transactionDTO.getTag(),
                     transactionDTO.getCategory(),
@@ -32,7 +32,7 @@ public class TransactionController {
                     transactionDTO.isRecurring(),
                     transactionDTO.getRecurrenceFrequency()
             );
-            return ResponseEntity.ok("Transaction created successfully.");
+            return ResponseEntity.ok("Transaction created successfully with ID: " + createdTransaction.getTransactionId());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error creating transaction: " + e.getMessage());
         }
@@ -81,5 +81,11 @@ public class TransactionController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/recurring")
+    public ResponseEntity<List<Transaction>> getRecurringTransactions() {
+        List<Transaction> recurringTransactions = transactionService.getRecurringTransactions();
+        return recurringTransactions.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(recurringTransactions);
     }
 }
