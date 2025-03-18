@@ -30,16 +30,7 @@ public class Transaction {
     private RecurrenceFrequency recurrenceFrequency;
     private LocalDateTime nextRecurrenceDate;
 
-    // Reference to User (MongoDB way)
     @DBRef
-    private User user; // Many-to-One reference to User in MongoDB
+    private User user;
 
-    // Getter and Setter for User (if needed)
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 }
