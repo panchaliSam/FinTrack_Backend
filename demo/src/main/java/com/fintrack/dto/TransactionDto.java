@@ -1,8 +1,8 @@
 package com.fintrack.dto;
 
-import com.fintrack.entity.*;
 import com.fintrack.type.Category;
 import com.fintrack.type.Tag;
+import com.fintrack.type.RecurrenceFrequency;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,5 +20,5 @@ public class TransactionDto {
     private double amount;
     private LocalDateTime transactionDate;
     private boolean isRecurring;
-    private RecurrencePattern recurrencePattern;
+    private RecurrenceFrequency recurrenceFrequency;
 }

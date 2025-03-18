@@ -3,6 +3,7 @@ package com.fintrack.utility;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -27,7 +28,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -54,5 +55,10 @@ public class JwtTokenProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public boolean isTokenValid(String jwt, UserDetails userDetails) {
+        final String username = extractUsername(jwt);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(jwt);
     }
 }

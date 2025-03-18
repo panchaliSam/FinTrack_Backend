@@ -37,7 +37,7 @@ public class FinTrackApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 //		insertSampleUser();
-//		insertSampleTransaction();
+		insertSampleTransaction();
 //		insertSampleBudget();
 //		insertSampleSavings();
 //		insertSampleGoal();
@@ -55,12 +55,6 @@ public class FinTrackApplication implements CommandLineRunner {
 	 * Inserts a sample transaction into MongoDB.
 	 */
 	private void insertSampleTransaction() {
-		RecurrencePattern recurrencePattern = new RecurrencePattern(
-				RecurrenceFrequency.MONTHLY,
-				LocalDateTime.now().plusMonths(1),
-				LocalDateTime.now().plusMonths(6)
-		);
-
 		transactionService.createTransaction(
 				"67b853e12101d21c20fad9ee",
 				Tag.BUSINESS,
@@ -69,7 +63,7 @@ public class FinTrackApplication implements CommandLineRunner {
 				200.00,
 				LocalDateTime.now(),
 				true,
-				recurrencePattern
+				RecurrenceFrequency.DAILY
 		);
 
 		System.out.println("Sample transaction inserted successfully.");

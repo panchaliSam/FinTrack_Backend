@@ -1,9 +1,11 @@
 package com.fintrack.service;
 
-import com.fintrack.entity.*;
+import com.fintrack.entity.Transaction;
 import com.fintrack.repository.TransactionRepository;
 import com.fintrack.type.Category;
 import com.fintrack.type.Tag;
+import com.fintrack.type.RecurrenceFrequency;
+import com.fintrack.utility.RecurrenceUtil;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,7 +21,8 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Transaction createTransaction(String userId, Tag tag, Category category, String description, double amount, LocalDateTime transactionDate, boolean isRecurring, RecurrencePattern recurrencePattern) {
+    public Transaction createTransaction(String userId, Tag tag, Category category, String description, double amount,
+                                         LocalDateTime transactionDate, boolean isRecurring, RecurrenceFrequency recurrenceFrequency) {
         Transaction transaction = new Transaction();
         transaction.setUserId(userId);
         transaction.setTag(tag);
@@ -28,7 +31,15 @@ public class TransactionService {
         transaction.setAmount(amount);
         transaction.setTransactionDate(transactionDate);
         transaction.setRecurring(isRecurring);
-        transaction.setRecurrencePattern(recurrencePattern);
+        transaction.setRecurrenceFrequency(recurrenceFrequency);
+
+        if (isRecurring && recurrenceFrequency != null) {
+            LocalDateTime nextDate = RecurrenceUtil.calculateNextOccurrence(transactionDate, recurrenceFrequency);
+            transaction.setNextRecurrenceDate(nextDate);
+        } else {
+            transaction.setNextRecurrenceDate(null);
+        }
+
         return transactionRepository.save(transaction);
     }
 
@@ -44,7 +55,9 @@ public class TransactionService {
         return transactionRepository.findByUserId(userId);
     }
 
-    public Optional<Transaction> updateTransaction(String transactionId, String userId, Tag tag, Category category, String description, double amount, LocalDateTime transactionDate, boolean isRecurring, RecurrencePattern recurrencePattern) {
+    public Optional<Transaction> updateTransaction(String transactionId, String userId, Tag tag, Category category,
+                                                   String description, double amount, LocalDateTime transactionDate,
+                                                   boolean isRecurring, RecurrenceFrequency recurrenceFrequency) {
         Optional<Transaction> existingTransaction = transactionRepository.findById(transactionId);
         if (existingTransaction.isPresent()) {
             Transaction transaction = existingTransaction.get();
@@ -55,7 +68,15 @@ public class TransactionService {
             transaction.setAmount(amount);
             transaction.setTransactionDate(transactionDate);
             transaction.setRecurring(isRecurring);
-            transaction.setRecurrencePattern(recurrencePattern);
+            transaction.setRecurrenceFrequency(recurrenceFrequency);
+
+            if (isRecurring && recurrenceFrequency != null) {
+                LocalDateTime nextDate = RecurrenceUtil.calculateNextOccurrence(transactionDate, recurrenceFrequency);
+                transaction.setNextRecurrenceDate(nextDate);
+            } else {
+                transaction.setNextRecurrenceDate(null);
+            }
+
             return Optional.of(transactionRepository.save(transaction));
         }
         return Optional.empty();

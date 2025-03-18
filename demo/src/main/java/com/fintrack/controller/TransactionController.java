@@ -21,17 +21,21 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<String> createTransaction(@RequestBody TransactionDto transactionDTO) {
-        transactionService.createTransaction(
-                transactionDTO.getUserId(),
-                transactionDTO.getTag(),
-                transactionDTO.getCategory(),
-                transactionDTO.getDescription(),
-                transactionDTO.getAmount(),
-                transactionDTO.getTransactionDate(),
-                transactionDTO.isRecurring(),
-                transactionDTO.getRecurrencePattern()
-                );
-        return ResponseEntity.ok("Transaction created successfully");
+        try {
+            transactionService.createTransaction(
+                    transactionDTO.getUserId(),
+                    transactionDTO.getTag(),
+                    transactionDTO.getCategory(),
+                    transactionDTO.getDescription(),
+                    transactionDTO.getAmount(),
+                    transactionDTO.getTransactionDate(),
+                    transactionDTO.isRecurring(),
+                    transactionDTO.getRecurrenceFrequency()
+            );
+            return ResponseEntity.ok("Transaction created successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error creating transaction: " + e.getMessage());
+        }
     }
 
     @GetMapping
@@ -48,28 +52,34 @@ public class TransactionController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateTransaction(@PathVariable String id, @RequestBody TransactionDto transactionDTO) {
-        Optional<Transaction> updateTransaction = transactionService.updateTransaction(
-                id,
-                transactionDTO.getUserId(),
-                transactionDTO.getTag(),
-                transactionDTO.getCategory(),
-                transactionDTO.getDescription(),
-                transactionDTO.getAmount(),
-                transactionDTO.getTransactionDate(),
-                transactionDTO.isRecurring(),
-                transactionDTO.getRecurrencePattern()
-        );
-        return updateTransaction.map(transaction -> ResponseEntity.ok("Transaction updated successfully"))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            Optional<Transaction> updatedTransaction = transactionService.updateTransaction(
+                    id,
+                    transactionDTO.getUserId(),
+                    transactionDTO.getTag(),
+                    transactionDTO.getCategory(),
+                    transactionDTO.getDescription(),
+                    transactionDTO.getAmount(),
+                    transactionDTO.getTransactionDate(),
+                    transactionDTO.isRecurring(),
+                    transactionDTO.getRecurrenceFrequency()
+            );
+
+            return updatedTransaction
+                    .map(transaction -> ResponseEntity.ok("Transaction updated successfully."))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error updating transaction: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTransaction(@PathVariable String id) {
-        if(transactionService.deleteTransaction(id)) {
-            return ResponseEntity.ok("Transaction deleted successfully");
-        }else{
+        if (transactionService.deleteTransaction(id)) {
+            return ResponseEntity.ok("Transaction deleted successfully.");
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
 }
-
