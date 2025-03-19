@@ -85,8 +85,6 @@ public class ReportController {
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadReport(@RequestParam String userId, @RequestParam int year) {
         try {
-            System.out.println("📥 Received download request: UserID=" + userId + ", Year=" + year);
-
             String filePath = excelExportService.generateFinancialReport(userId, year);
             File file = new File(filePath);
 

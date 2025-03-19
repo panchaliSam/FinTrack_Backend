@@ -157,8 +157,14 @@ class UserServiceTest {
 
     @Test
     void authenticateUser_Success() {
+        Role userRole = Role.REGULAR_USER;
+        User mockUser = new User();
+        mockUser.setEmail("john@example.com");
+        mockUser.setPassword("hashedPassword123");
+        mockUser.setRole(userRole);
+
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(mockUser));
-        when(jwtTokenProvider.generateToken("john@example.com")).thenReturn("mockToken");
+        when(jwtTokenProvider.generateToken("john@example.com", userRole)).thenReturn("mockToken");
 
         String token = userService.authenticateUser("john@example.com", "password123");
 

@@ -4,6 +4,7 @@ import com.fintrack.dto.TransactionDto;
 import com.fintrack.entity.Transaction;
 import com.fintrack.service.TransactionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class TransactionController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<List<Transaction>> getAllTransactions() {
         List<Transaction> transactions = transactionService.getAllTransactions();
         return transactions.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactions);

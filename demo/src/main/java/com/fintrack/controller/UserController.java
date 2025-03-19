@@ -3,8 +3,8 @@ package com.fintrack.controller;
 import com.fintrack.dto.UserDto;
 import com.fintrack.entity.User;
 import com.fintrack.service.UserService;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,6 +48,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
@@ -74,6 +75,7 @@ public class UserController {
     }
 
     @DeleteMapping( "/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable String id) {
         if (userService.deleteUser(id)) {
             return ResponseEntity.ok("User deleted successfully");

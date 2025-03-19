@@ -36,7 +36,7 @@ public class FinTrackApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 //		insertSampleUser();
-		insertSampleTransaction();
+//		insertSampleTransaction();
 //		insertSampleBudget();
 //		insertSampleSavings();
 //		insertSampleGoal();

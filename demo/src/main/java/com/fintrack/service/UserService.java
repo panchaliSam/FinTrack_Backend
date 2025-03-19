@@ -96,7 +96,7 @@ public class UserService {
             throw new IllegalArgumentException("Invalid email or password.");
         }
 
-        return jwtTokenProvider.generateToken(user.getEmail());
+        return jwtTokenProvider.generateToken(user.getEmail(), user.getRole());
     }
 
     private void notifyAdminsOfNewUser(User user){

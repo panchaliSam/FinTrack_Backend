@@ -39,7 +39,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        final String jwt = authorizationHeader.substring(7);
+        final String jwt = authorizationHeader.substring(7); // Extract JWT
         final String userName = jwtService.extractUsername(jwt);
 
         if (StringUtils.isNotEmpty(userName) && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -47,9 +47,11 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userName);
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                 context.setAuthentication(authToken);
                 SecurityContextHolder.setContext(context);
             }
