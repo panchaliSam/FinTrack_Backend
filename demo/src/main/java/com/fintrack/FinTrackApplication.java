@@ -1,6 +1,5 @@
 package com.fintrack;
 
-import com.fintrack.entity.*;
 import com.fintrack.service.*;
 import com.fintrack.type.*;
 import org.springframework.boot.CommandLineRunner;
@@ -55,21 +54,15 @@ public class FinTrackApplication implements CommandLineRunner {
 	 * Inserts a sample transaction into MongoDB.
 	 */
 	private void insertSampleTransaction() {
-		RecurrencePattern recurrencePattern = new RecurrencePattern(
-				RecurrenceFrequency.MONTHLY,
-				LocalDateTime.now().plusMonths(1),
-				LocalDateTime.now().plusMonths(6)
-		);
-
 		transactionService.createTransaction(
-				"67b853e12101d21c20fad9ee",
+				"67cfc89ebc863110b8f4a325",
 				Tag.BUSINESS,
 				Category.INCOME,
 				"This is a sample transaction",
-				200.00,
+				2000000.00,
 				LocalDateTime.now(),
 				true,
-				recurrencePattern
+				RecurrenceFrequency.DAILY
 		);
 
 		System.out.println("Sample transaction inserted successfully.");
@@ -80,7 +73,7 @@ public class FinTrackApplication implements CommandLineRunner {
 	 */
 	private void insertSampleBudget() {
 		budgetService.createBudget(
-				"67b853e12101d21c20fad9ee",
+				"67cfc89ebc863110b8f4a325",
 				Category.EXPENSE,
 				1500.00,
 				LocalDateTime.of(2025, 1, 1, 0, 0, 0, 0),
@@ -104,7 +97,7 @@ public class FinTrackApplication implements CommandLineRunner {
 	 */
 	private void insertSampleGoal() {
 		goalService.createGoal(
-				"67cd0d8aa332965005d0de62",
+				"67cfc89ebc863110b8f4a325",
 				"Buying a car",
 				2000,
 				0,

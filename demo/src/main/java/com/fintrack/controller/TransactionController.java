@@ -4,6 +4,7 @@ import com.fintrack.dto.TransactionDto;
 import com.fintrack.entity.Transaction;
 import com.fintrack.service.TransactionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,20 +22,25 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<String> createTransaction(@RequestBody TransactionDto transactionDTO) {
-        transactionService.createTransaction(
-                transactionDTO.getUserId(),
-                transactionDTO.getTag(),
-                transactionDTO.getCategory(),
-                transactionDTO.getDescription(),
-                transactionDTO.getAmount(),
-                transactionDTO.getTransactionDate(),
-                transactionDTO.isRecurring(),
-                transactionDTO.getRecurrencePattern()
-                );
-        return ResponseEntity.ok("Transaction created successfully");
+        try {
+            Transaction createdTransaction = transactionService.createTransaction(
+                    transactionDTO.getUserId(),
+                    transactionDTO.getTag(),
+                    transactionDTO.getCategory(),
+                    transactionDTO.getDescription(),
+                    transactionDTO.getAmount(),
+                    transactionDTO.getTransactionDate(),
+                    transactionDTO.isRecurring(),
+                    transactionDTO.getRecurrenceFrequency()
+            );
+            return ResponseEntity.ok("Transaction created successfully with ID: " + createdTransaction.getTransactionId());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error creating transaction: " + e.getMessage());
+        }
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<List<Transaction>> getAllTransactions() {
         List<Transaction> transactions = transactionService.getAllTransactions();
         return transactions.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(transactions);
@@ -48,28 +54,40 @@ public class TransactionController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateTransaction(@PathVariable String id, @RequestBody TransactionDto transactionDTO) {
-        Optional<Transaction> updateTransaction = transactionService.updateTransaction(
-                id,
-                transactionDTO.getUserId(),
-                transactionDTO.getTag(),
-                transactionDTO.getCategory(),
-                transactionDTO.getDescription(),
-                transactionDTO.getAmount(),
-                transactionDTO.getTransactionDate(),
-                transactionDTO.isRecurring(),
-                transactionDTO.getRecurrencePattern()
-        );
-        return updateTransaction.map(transaction -> ResponseEntity.ok("Transaction updated successfully"))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            Optional<Transaction> updatedTransaction = transactionService.updateTransaction(
+                    id,
+                    transactionDTO.getUserId(),
+                    transactionDTO.getTag(),
+                    transactionDTO.getCategory(),
+                    transactionDTO.getDescription(),
+                    transactionDTO.getAmount(),
+                    transactionDTO.getTransactionDate(),
+                    transactionDTO.isRecurring(),
+                    transactionDTO.getRecurrenceFrequency()
+            );
+
+            return updatedTransaction
+                    .map(transaction -> ResponseEntity.ok("Transaction updated successfully."))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error updating transaction: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTransaction(@PathVariable String id) {
-        if(transactionService.deleteTransaction(id)) {
-            return ResponseEntity.ok("Transaction deleted successfully");
-        }else{
+        if (transactionService.deleteTransaction(id)) {
+            return ResponseEntity.ok("Transaction deleted successfully.");
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
-}
 
+    @GetMapping("/recurring")
+    public ResponseEntity<List<Transaction>> getRecurringTransactions() {
+        List<Transaction> recurringTransactions = transactionService.getRecurringTransactions();
+        return recurringTransactions.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(recurringTransactions);
+    }
+}

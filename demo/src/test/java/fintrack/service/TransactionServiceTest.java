@@ -1,6 +1,5 @@
 package fintrack.service;
 
-import com.fintrack.entity.RecurrencePattern;
 import com.fintrack.entity.Transaction;
 import com.fintrack.repository.TransactionRepository;
 import com.fintrack.service.TransactionService;
@@ -40,12 +39,7 @@ class TransactionServiceTest {
         transactionId = new ObjectId();
         userId = new ObjectId();
 
-        RecurrencePattern recurrencePattern = new RecurrencePattern(
-                RecurrenceFrequency.MONTHLY,
-                LocalDateTime.now().plusMonths(1),
-                LocalDateTime.now().plusMonths(6)
-        );
-
+        // Adjust the recurrence to use RecurrenceFrequency directly
         mockTransaction = new Transaction();
         mockTransaction.setTransactionId(transactionId.toString());
         mockTransaction.setUserId(userId.toString());
@@ -55,7 +49,7 @@ class TransactionServiceTest {
         mockTransaction.setAmount(150.50);
         mockTransaction.setTransactionDate(LocalDateTime.now());
         mockTransaction.setRecurring(true);
-        mockTransaction.setRecurrencePattern(recurrencePattern);
+        mockTransaction.setRecurrenceFrequency(RecurrenceFrequency.MONTHLY);
     }
 
     @Test
@@ -70,7 +64,7 @@ class TransactionServiceTest {
                 mockTransaction.getAmount(),
                 mockTransaction.getTransactionDate(),
                 mockTransaction.isRecurring(),
-                mockTransaction.getRecurrencePattern()
+                mockTransaction.getRecurrenceFrequency()
         );
 
         assertNotNull(createdTransaction);
@@ -171,7 +165,7 @@ class TransactionServiceTest {
                 mockTransaction.getAmount(),
                 mockTransaction.getTransactionDate(),
                 mockTransaction.isRecurring(),
-                mockTransaction.getRecurrencePattern()
+                mockTransaction.getRecurrenceFrequency()
         );
 
         assertFalse(updatedTransaction.isPresent());

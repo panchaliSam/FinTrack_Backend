@@ -71,7 +71,6 @@ public class BudgetService {
         }
     }
 
-
     private void validateDuplicateBudget(String userId, Category budgetCategory, double amount, LocalDateTime startDate, LocalDateTime endDate) {
         Optional<Budget> existingBudget = budgetRepository.findByUserIdAndBudgetCategoryAndAmountAndStartDateAndEndDate(userId, budgetCategory, amount, startDate, endDate);
 

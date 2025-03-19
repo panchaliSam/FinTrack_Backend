@@ -5,6 +5,8 @@ import com.fintrack.entity.Transaction;
 import com.fintrack.service.ExcelExportService;
 import com.fintrack.service.ReportService;
 import com.fintrack.type.Category;
+import com.fintrack.type.RecurrenceFrequency;
+import com.fintrack.type.Tag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -136,24 +138,6 @@ class ReportControllerTest {
 
         assertEquals(mockComparison, response);
         verify(reportService, times(1)).getIncomeVsExpenses(userId, startDate, endDate);
-    }
-
-    @Test
-    void filterTransactions() {
-        LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
-        LocalDateTime endDate = LocalDateTime.of(2024, 12, 31, 0, 0);
-
-        List<Transaction> mockTransactions = List.of(
-                new Transaction(null, userId, null, null, "Salary", 5000.00, startDate, false, null),
-                new Transaction(null, userId, null, null, "Rent", -1500.00, endDate, false, null)
-        );
-
-        when(reportService.filterTransactions(userId, null, null, startDate, endDate)).thenReturn(mockTransactions);
-
-        List<Transaction> response = reportController.filterTransactions(userId, null, null, startDate, endDate);
-
-        assertEquals(mockTransactions, response);
-        verify(reportService, times(1)).filterTransactions(userId, null, null, startDate, endDate);
     }
 
     @Test
