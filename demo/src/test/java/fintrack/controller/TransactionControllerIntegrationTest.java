@@ -1,10 +1,11 @@
-package fintrack.controller;//package com.fintrack.controller;
+package fintrack.controller;
 
 import com.fintrack.FinTrackApplication;
 import com.fintrack.dto.TransactionDto;
 import com.fintrack.entity.Transaction;
 import com.fintrack.service.TransactionService;
 import com.fintrack.type.Category;
+import com.fintrack.type.RecurrenceFrequency;
 import com.fintrack.type.Tag;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,20 +51,19 @@ public class TransactionControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        baseUrl = "http://localhost:" + port + "/api/transaction";
+        baseUrl = "http://localhost/8082:" + port + "/api/transaction";
         mockTransactionId = new ObjectId().toHexString();
 
-        mockTransaction = new Transaction(
-                mockTransactionId,
-                new ObjectId().toHexString(),
-                Tag.BUSINESS,
-                Category.INCOME,
-                "Monthly salary",
-                5000.0,
-                LocalDateTime.of(2025, 1, 1, 0, 0),
-                false,
-                null
-        );
+//        mockTransaction = new Transaction(
+//                "userId123",
+//                Tag.BUSINESS,
+//                Category.INCOME,
+//                "Monthly salary",
+//                5000.0,
+//                LocalDateTime.now(),
+//                true,
+//                RecurrenceFrequency.MONTHLY
+//        );
 
         Mockito.when(transactionService.getAllTransactions()).thenReturn(List.of(mockTransaction));
         Mockito.when(transactionService.getTransactionById(mockTransactionId)).thenReturn(Optional.of(mockTransaction));
@@ -111,20 +111,20 @@ public class TransactionControllerIntegrationTest {
 
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
-        assertEquals("Transaction created successfully", response.getBody());
+        assertTrue(response.getBody().startsWith("Transaction created successfully with ID"));
     }
 
     @Test
     void testUpdateTransaction() {
         TransactionDto updatedTransaction = new TransactionDto(
-                new ObjectId().toHexString(),
+                mockTransactionId,
                 Tag.BUSINESS,
                 Category.INCOME,
                 "Freelance project payment",
                 1200.0,
                 LocalDateTime.of(2025, 4, 1, 0, 0),
                 false,
-                null
+                null // No RecurrenceFrequency here
         );
 
         HttpHeaders headers = new HttpHeaders();
@@ -135,13 +135,14 @@ public class TransactionControllerIntegrationTest {
 
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
-        assertEquals("Transaction updated successfully", response.getBody());
+        assertEquals("Transaction updated successfully.", response.getBody());
     }
 
     @Test
     void testDeleteTransaction() {
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/" + mockTransactionId, HttpMethod.DELETE, null, String.class);
         assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Transaction deleted successfully.", response.getBody());
     }
 
     @Test

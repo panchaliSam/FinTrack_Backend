@@ -45,18 +45,15 @@ class TransactionControllerTest {
                 LocalDateTime.now().plusMonths(6)
         );
 
-        // Simulating an auto-generated ID in MongoDB
-        mockTransaction = new Transaction(
-                "65f8c321abc456d789e01234", // Simulated auto-generated MongoDB ID
-                "67b853e12101d21c20fad9ee", // User ID
-                Tag.BUSINESS,
-                Category.INCOME,
-                "This is a sample transaction",
-                200.00,
-                LocalDateTime.now(),
-                true,
-                mockRecurrencePattern
-        );
+//        mockTransaction = new Transaction(
+//                "67b853e12101d21c20fad9ee",
+//                Tag.BUSINESS,
+//                Category.INCOME,
+//                "This is a sample transaction",
+//                200.00,
+//                LocalDateTime.now(),
+//                false
+//        );
 
         mockTransactionDto = new TransactionDto(
                 "67b853e12101d21c20fad9ee",
@@ -66,7 +63,7 @@ class TransactionControllerTest {
                 200.00,
                 LocalDateTime.now(),
                 true,
-                mockRecurrencePattern
+                RecurrenceFrequency.DAILY
         );
     }
 
@@ -81,7 +78,7 @@ class TransactionControllerTest {
                 mockTransactionDto.getAmount(),
                 mockTransactionDto.getTransactionDate(),
                 mockTransactionDto.isRecurring(),
-                mockTransactionDto.getRecurrencePattern()
+                mockTransactionDto.getRecurrenceFrequency()
         )).thenReturn(mockTransaction);
 
         ResponseEntity<String> response = transactionController.createTransaction(mockTransactionDto);
@@ -97,7 +94,7 @@ class TransactionControllerTest {
                 mockTransactionDto.getAmount(),
                 mockTransactionDto.getTransactionDate(),
                 mockTransactionDto.isRecurring(),
-                mockTransactionDto.getRecurrencePattern()
+                mockTransactionDto.getRecurrenceFrequency()
         );
     }
 
@@ -156,7 +153,7 @@ class TransactionControllerTest {
                 mockTransactionDto.getAmount(),
                 mockTransactionDto.getTransactionDate(),
                 mockTransactionDto.isRecurring(),
-                mockTransactionDto.getRecurrencePattern()
+                mockTransactionDto.getRecurrenceFrequency()
         )).thenReturn(Optional.of(mockTransaction));
 
         ResponseEntity<String> response = transactionController.updateTransaction("65f8c321abc456d789e01234", mockTransactionDto);
@@ -173,7 +170,7 @@ class TransactionControllerTest {
                 mockTransactionDto.getAmount(),
                 mockTransactionDto.getTransactionDate(),
                 mockTransactionDto.isRecurring(),
-                mockTransactionDto.getRecurrencePattern()
+                mockTransactionDto.getRecurrenceFrequency()
         );
     }
 
@@ -188,7 +185,7 @@ class TransactionControllerTest {
                 mockTransactionDto.getAmount(),
                 mockTransactionDto.getTransactionDate(),
                 mockTransactionDto.isRecurring(),
-                mockTransactionDto.getRecurrencePattern()
+                mockTransactionDto.getRecurrenceFrequency()
         )).thenReturn(Optional.empty());
 
         ResponseEntity<String> response = transactionController.updateTransaction("invalidId", mockTransactionDto);
